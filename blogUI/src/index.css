@@ -1,0 +1,16 @@
+html, body {
+    height: 100%;
+    margin: 0;
+    padding: 0;
+    background-color: #05161a;
+    background-image: url(https://s3-us-west-2.amazonaws.com/s.cdpn.io/1462889/pat.svg);
+    background-size: 20%;
+  
+  }
+  ol,ul{
+    padding-left: 0;
+  }
+  dl, ol, ul {
+    margin-top: 0;
+    margin-bottom: 0;
+}

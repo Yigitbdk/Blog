@@ -1,0 +1,32 @@
+.comment-card {
+    position: relative;
+    padding: 1em;
+    border-radius: 20px;
+    margin: 10px 3px;
+    display: flex;
+    justify-self: center;
+  }
+  
+  .comment-info {
+    display: flex;
+    justify-content: space-between;
+  }
+  
+  .username {
+    color: rgb(51, 134, 139);
+    font-size: 15px;
+  }
+  
+  .date {
+    color: rgb(51, 134, 139);
+    text-align: right;
+    font-style: italic;
+    font-size: 15px;
+  }
+  
+  .comment-content {
+    color: rgb(165, 209, 202);
+    font-size: 18px;
+    text-align: center;
+  }
+  

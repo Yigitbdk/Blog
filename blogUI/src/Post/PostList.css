@@ -1,0 +1,60 @@
+.post-list {
+  display: flex;
+  padding-top: 120px;
+}
+
+.categories {
+  width: 20%;
+  padding-left: 40px;
+}
+
+.categories ul {
+  list-style-type: none;
+  padding: 0;
+}
+
+.categories li {
+  margin-bottom: 10px;
+}
+
+.categories button {
+  width: 250px;
+  background-color: rgb(20, 71, 71);
+  color: rgb(153, 174, 175);
+  border: none;
+  border-radius: 20px; 
+  padding: 10px 15px;
+  cursor: pointer;
+  transition: background-color 0.3s;
+}
+
+.categories button:hover {
+  background-color: rgb(51, 134, 139);
+  color: rgb(34, 39, 39);
+}
+
+.posts{
+  width: 80%;
+}
+
+.add-post-button{
+  width: 800px;
+  display: flex;
+  justify-self: center;
+  flex-direction: column;
+  align-items: center;
+  margin-right: 15px;
+  margin-bottom: 30px;
+  background-color: #121212;
+  color: rgb(153, 174, 175);
+  border: none;
+  border-radius: 20px; 
+  padding: 10px 15px;
+  cursor: pointer;
+  transition: background-color 0.3s;
+}
+
+.xxx{
+  margin-left: 50px;
+  font-size: 30px;
+}

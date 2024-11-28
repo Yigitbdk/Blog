@@ -1,0 +1,113 @@
+@import url("https://fonts.googleapis.com/css2?family=Poppins:wght@200;300;400;500;600;700&display=swap");
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+  font-family: "Poppins", sans-serif;
+}
+nav {
+  position: fixed;
+  z-index: 99;
+  width: 100%;
+  top: 0;
+  background: #072e33;
+}
+nav .wrapper {
+  position: relative;
+  max-width: 1820px;
+  padding: 0px 30px;
+  height: 100px;
+  line-height: 60px;
+  margin: auto;
+  display: flex;
+  align-items: center;
+}
+.wrapper .logo a {
+  color: #0f969c;
+  font-size: 60px;
+  vertical-align: middle;
+  font-weight: 600;
+  text-decoration: none;
+}
+.logo .large {
+  font-size: 70px;
+  vertical-align: middle;
+}
+
+.wrapper .nav-links {
+  display: flex;
+  justify-content: center;
+  width: 100%;
+}
+.login-btn {
+  margin-left: auto;
+}
+.nav-links li {
+  list-style: none;
+}
+.nav-links li a {
+  color: #aec6d1;
+  text-decoration: none;
+  font-size: 20px;
+  font-weight: 350;
+  padding: 10px 20px;
+  border-radius: 5px;
+  transition: all 0.5s ease;
+  vertical-align: middle;
+}
+.nav-links li a:hover {
+  background: #05161a;
+}
+.nav-links .mobile-item {
+  display: none;
+}
+.nav-links .drop-menu {
+  position: absolute;
+  background: #072e33;
+  width: 190px;
+  line-height: 45px;
+  top: 100px;
+  opacity: 0;
+  visibility: hidden;
+  box-shadow: 0 6px 10px rgba(0, 0, 0, 0.15);
+}
+.nav-links li:hover .drop-menu {
+  transition: all 0.5s ease;
+  top: 75px;
+  border-radius: 10px;
+  opacity: 1;
+  visibility: visible;
+}
+.drop-menu li a {
+  width: 100%;
+  display: block;
+  padding: 0 0 0 15px;
+  font-weight: 350;
+  border-radius: 5px;
+  align-items: center;
+}
+nav input {
+  display: none;
+}
+.log-in {
+  margin-left: auto;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+.fs-24 {
+  font-size: 24px;
+}
+.padding-5 {
+  padding: 0 5px !important;
+}
+.logout-btn{
+    color: #aec6d1;
+    font-size: 20px;
+    padding: 0px 20px;
+    border-radius: 5px;
+}
+.user-profile{
+  display: flex;
+  margin-left: auto;
+}
