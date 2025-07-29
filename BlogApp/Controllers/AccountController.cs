@@ -49,7 +49,7 @@ namespace BlogApp.Controllers
         public JsonResult AddUser(AddUserRequestDto dto)
         {
 
-            string query = @"INSERT INTO dbo.[User] (Username, Email, Password, ProfilePicture, CreateDate) 
+            string query = @"INSERT INTO dbo.[Users] (Username, Email, Password, ProfilePicture, CreateDate) 
                             VALUES (@Username, @Email, @Password, @ProfilePicture, @CreateDate)";
             DataTable table = new DataTable();
 
@@ -82,7 +82,7 @@ namespace BlogApp.Controllers
         [HttpPost(Name = "LoginUser")]
         public JsonResult LoginUser(LoginRequestDto dto)
         {
-            string query = @"SELECT UserId, Username FROM dbo.[User] 
+            string query = @"SELECT UserId, Username FROM dbo.[Users] 
                      WHERE Email = @Email AND Password = @Password";
             DataTable table = new DataTable();
 
@@ -125,7 +125,7 @@ namespace BlogApp.Controllers
         [HttpPost(Name = "UpdateUserProfile")]
         public JsonResult UpdateUserProfile(UpdateProfileRequestDto dto)
         {
-            string query = @"UPDATE dbo.[User] 
+            string query = @"UPDATE dbo.[Users] 
                      SET Username = @Username, Bio = @Bio, ProfilePicture = @ProfilePicture
                      WHERE UserId = @UserId";
 
@@ -161,7 +161,7 @@ namespace BlogApp.Controllers
         public JsonResult GetUserProfile(string userId)
         {
             string query = @"SELECT Username, Bio, ProfilePicture 
-                     FROM dbo.[User] 
+                     FROM dbo.[Users] 
                      WHERE UserId = @UserId";
 
             string sqlDatasource = _configuration.GetConnectionString("BlogDB");

@@ -29,9 +29,9 @@ namespace BlogApp.Controllers
             u.Username, 
             p.CategoryId, 
             c.Name AS CategoryName
-        FROM dbo.Post p
-        INNER JOIN dbo.[User] u ON p.UserId = u.UserId
-        INNER JOIN dbo.Category c ON p.CategoryId = c.CategoryId";
+        FROM dbo.Posts p
+        INNER JOIN dbo.[Users] u ON p.UserId = u.UserId
+        INNER JOIN dbo.Categories c ON p.CategoryId = c.CategoryId";
 
             DataTable table = new DataTable();
             string sqlDatasource = _configuration.GetConnectionString("BlogDB");
@@ -87,9 +87,9 @@ namespace BlogApp.Controllers
             u.Username, 
             p.CategoryId, 
             c.Name AS CategoryName
-        FROM dbo.Post p
-        INNER JOIN dbo.[User] u ON p.UserId = u.UserId
-        INNER JOIN dbo.Category c ON p.CategoryId = c.CategoryId
+        FROM dbo.Posts p
+        INNER JOIN dbo.[Users] u ON p.UserId = u.UserId
+        INNER JOIN dbo.Categories c ON p.CategoryId = c.CategoryId
         WHERE p.PostId = @PostId"; 
 
             DataTable table = new DataTable();
@@ -126,9 +126,9 @@ namespace BlogApp.Controllers
             u.Username, 
             p.CategoryId, 
             c.Name AS CategoryName
-        FROM dbo.Post p
-        INNER JOIN dbo.[User] u ON p.UserId = u.UserId
-        INNER JOIN dbo.Category c ON p.CategoryId = c.CategoryId
+        FROM dbo.Posts p
+        INNER JOIN dbo.[Users] u ON p.UserId = u.UserId
+        INNER JOIN dbo.Categories c ON p.CategoryId = c.CategoryId
         WHERE p.UserId = @UserId";
 
             DataTable table = new DataTable();
@@ -157,7 +157,7 @@ namespace BlogApp.Controllers
         public JsonResult AddPost(PostDto dto)
         {
 
-            string query = @"INSERT INTO dbo.Post (Title, Content, UserId, CategoryId) 
+            string query = @"INSERT INTO dbo.Posts (Title, Content, UserId, CategoryId) 
                      VALUES (@Title, @Content, @UserId, @CategoryId)";
 
             DataTable table = new DataTable();
@@ -195,7 +195,7 @@ namespace BlogApp.Controllers
         [HttpGet(Name = "CategoryFilter")]
         public JsonResult CategoryFilter(int categoryId)
         {
-            string query = "SELECT PostId, Title, Content, UserId, CategoryId FROM dbo.Post WHERE CategoryId = @CategoryId";
+            string query = "SELECT PostId, Title, Content, UserId, CategoryId FROM dbo.Posts WHERE CategoryId = @CategoryId";
             DataTable table = new DataTable();
             string sqlDatasource = _configuration.GetConnectionString("BlogDB");
             SqlDataReader myReader;

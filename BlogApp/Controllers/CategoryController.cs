@@ -16,7 +16,7 @@ public class CategoryController : ControllerBase
     [HttpGet(Name = "GetCategories")]
     public JsonResult GetCategories()
     {
-        string query = "SELECT * FROM dbo.Category";
+        string query = "SELECT * FROM dbo.Categories";
         DataTable table = new DataTable();
         string sqlDatasource = _configuration.GetConnectionString("BlogDB");
         using (SqlConnection myCon = new SqlConnection(sqlDatasource))
