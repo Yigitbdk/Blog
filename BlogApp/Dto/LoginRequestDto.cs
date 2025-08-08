@@ -1,4 +1,5 @@
 ﻿using Microsoft.AspNetCore.Mvc;
+using System.Text.Json.Serialization;
 
 namespace BlogApp.Dto
 {
@@ -7,4 +8,5 @@ namespace BlogApp.Dto
         public string Email { get; set; }
         public string Password { get; set; }
     }
+
 }

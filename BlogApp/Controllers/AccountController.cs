@@ -1,200 +1,140 @@
-﻿using BlogApp.Dto;
+﻿
+using BlogApp.Dto;
 using Microsoft.AspNetCore.Http;
+using Microsoft.EntityFrameworkCore;
+using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using System.Data;
 using System.Data.SqlClient;
 using System.Runtime.CompilerServices;
 using System.Security.Cryptography.X509Certificates;
-
+using BusinessLogicLayer;
+using DataAccessLayer.Data;
 namespace BlogApp.Controllers
 {
     [Route("api/[controller]/[action]")]
     [ApiController]
-    public class AccountController: ControllerBase
+    public class AccountController : ControllerBase
     {
-        private IConfiguration _configuration;
-        public AccountController(IConfiguration configuration)
-        {
-            _configuration = configuration;
-        }
-        /*
-         * 
-        [HttpGet(Name ="GetUser")]
-        public JsonResult GetUser()
-        {
+        private readonly IUserService _userService;
 
-            string query = "select * from dbo.[User]";
-            DataTable table = new DataTable();
-            string sqlDatasource = _configuration.GetConnectionString("BlogDB");
-            SqlDataReader myReader;
-            using(SqlConnection myCon=new SqlConnection(sqlDatasource))
-            {
-                myCon.Open();
-                using(SqlCommand myCommand = new SqlCommand(query, myCon))
-                {
-                    myReader=myCommand.ExecuteReader();
-                    table.Load(myReader);
-                    myReader.Close();
-                    myCon.Close();
-                }
-            }
-            return new JsonResult(table);
+        public AccountController(IUserService userService)
+        {
+            _userService = userService;
         }
-
-        */
-     
-        //Register
 
         [HttpPost(Name = "AddUser")]
-        public JsonResult AddUser(AddUserRequestDto dto)
+        public async Task<IActionResult> AddUser(AddUserRequestDto dto)
         {
-
-            string query = @"INSERT INTO dbo.[Users] (Username, Email, Password, ProfilePicture, CreateDate) 
-                            VALUES (@Username, @Email, @Password, @ProfilePicture, @CreateDate)";
-            DataTable table = new DataTable();
-
-            string sqlDatasource = _configuration.GetConnectionString("BlogDB");
-            SqlDataReader myReader;
-
-            using (SqlConnection myCon = new SqlConnection(sqlDatasource))
+            try
             {
-                myCon.Open();
-                using (SqlCommand myCommand = new SqlCommand(query, myCon))
-                {
-                    myCommand.Parameters.AddWithValue("@Username", dto.Username);
-                    myCommand.Parameters.AddWithValue("@Email", dto.Email);
-                    myCommand.Parameters.AddWithValue("@Password", dto.Password);
-                    myCommand.Parameters.AddWithValue("@ProfilePicture", string.IsNullOrEmpty(dto.ProfilePicture) ? (object)DBNull.Value : dto.ProfilePicture);
-                    myCommand.Parameters.AddWithValue("@CreateDate", DateTime.Now);
+                var user = await _userService.RegisterUserAsync(
+                    dto.Username,
+                    dto.Email,
+                    dto.Password,
+                    dto.ProfilePicture
+                );
 
-                    myReader = myCommand.ExecuteReader();
-                    table.Load(myReader);
-                    myReader.Close();
-                    myCon.Close();
-                }
+                return Ok("Added Successfully");
             }
-
-            return new JsonResult("Added Successfully");
+            catch (ArgumentException ex)
+            {
+                return BadRequest(ex.Message);
+            }
+            catch (InvalidOperationException ex)
+            {
+                return Conflict(ex.Message);
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, new { error = "Internal server error", message = ex.Message });
+            }
         }
-
-        //Login
 
         [HttpPost(Name = "LoginUser")]
-        public JsonResult LoginUser(LoginRequestDto dto)
+        public async Task<IActionResult> LoginUser([FromBody] LoginRequestDto dto)
         {
-            string query = @"SELECT UserId, Username FROM dbo.[Users] 
-                     WHERE Email = @Email AND Password = @Password";
-            DataTable table = new DataTable();
-
-            string sqlDatasource = _configuration.GetConnectionString("BlogDB");
-            SqlDataReader myReader;
-
-            using (SqlConnection myCon = new SqlConnection(sqlDatasource))
+            try
             {
-                myCon.Open();
-                using (SqlCommand myCommand = new SqlCommand(query, myCon))
+                var user = await _userService.LoginUserAsync(dto.Email, dto.Password);
+
+                return Ok(new LoginResponseDto
                 {
-                    myCommand.Parameters.AddWithValue("@Email", dto.Email);
-                    myCommand.Parameters.AddWithValue("@Password", dto.Password);
-
-                    myReader = myCommand.ExecuteReader();
-                    table.Load(myReader);
-                    myReader.Close();
-                    myCon.Close();
-                }
+                    UserId = user.Id,
+                    Username = user.UserName
+                });
             }
-           
-            if (table.Rows.Count > 0) 
+            catch (ArgumentException ex)
             {
-                DataRow row = table.Rows[0];
-
-                LoginResponseDto userInfo = new LoginResponseDto();
-                userInfo.UserId = Convert.ToInt32(row[0].ToString());
-                userInfo.Username = row[1].ToString();
-
-                return new JsonResult(userInfo);
+                return BadRequest(ex.Message);
             }
-            else
+            catch (UnauthorizedAccessException ex)
             {
-                return new JsonResult("Invalid Email or Password");
+                return Unauthorized(ex.Message);
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine("LOGIN ERROR: " + ex.Message);
+                return StatusCode(500, new { error = "Internal server error", message = ex.Message });
             }
         }
-
-        //Edit
 
         [HttpPost(Name = "UpdateUserProfile")]
-        public JsonResult UpdateUserProfile(UpdateProfileRequestDto dto)
+        public async Task<IActionResult> UpdateUserProfile(UpdateProfileRequestDto dto)
         {
-            string query = @"UPDATE dbo.[Users] 
-                     SET Username = @Username, Bio = @Bio, ProfilePicture = @ProfilePicture
-                     WHERE UserId = @UserId";
-
-            string sqlDatasource = _configuration.GetConnectionString("BlogDB");
-
-            using (SqlConnection myCon = new SqlConnection(sqlDatasource))
+            try
             {
-                myCon.Open();
-                using (SqlCommand myCommand = new SqlCommand(query, myCon))
-                {
-                    myCommand.Parameters.AddWithValue("@UserId", dto.UserId);
-                    myCommand.Parameters.AddWithValue("@Username", dto.Username);
-                    myCommand.Parameters.AddWithValue("@Bio", dto.Bio ?? (object)DBNull.Value);
-                    myCommand.Parameters.AddWithValue("@ProfilePicture", string.IsNullOrEmpty(dto.ProfilePicture) ? (object)DBNull.Value : dto.ProfilePicture);
+                await _userService.UpdateUserProfileAsync(
+                    dto.UserId,
+                    dto.Username,
+                    dto.Bio,
+                    dto.ProfilePicture
+                );
 
-                    int rowsAffected = myCommand.ExecuteNonQuery();
-
-                    if (rowsAffected > 0)
-                    {
-                        return new JsonResult("Profile updated successfully.");
-                    }
-                    else
-                    {
-                        return new JsonResult("User not found or no changes made.");
-                    }
-                }
+                return Ok(new { message = "Profile updated successfully" });
+            }
+            catch (ArgumentException ex)
+            {
+                return BadRequest(ex.Message);
+            }
+            catch (InvalidOperationException ex)
+            {
+                return NotFound(ex.Message);
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, new { error = "Internal server error", message = ex.Message });
             }
         }
-
-        //Profile alma
 
         [HttpGet(Name = "GetUserProfile")]
-        public JsonResult GetUserProfile(string userId)
+        public async Task<IActionResult> GetUserProfile(int userId)
         {
-            string query = @"SELECT Username, Bio, ProfilePicture 
-                     FROM dbo.[Users] 
-                     WHERE UserId = @UserId";
-
-            string sqlDatasource = _configuration.GetConnectionString("BlogDB");
-
-            using (SqlConnection myCon = new SqlConnection(sqlDatasource))
+            try
             {
-                myCon.Open();
-                using (SqlCommand myCommand = new SqlCommand(query, myCon))
+                var user = await _userService.GetUserProfileAsync(userId);
+
+                var result = new UserProfileDto
                 {
-                    myCommand.Parameters.AddWithValue("@UserId", userId);
+                    Username = user.UserName,
+                    Bio=user.Bio,
+                    ProfilePicture=user.ProfilePicture,
+                };
 
-                    using (SqlDataReader reader = myCommand.ExecuteReader())
-                    {
-                        if (reader.Read())
-                        {
-                            var userProfile = new
-                            {
-                                Username = reader["Username"].ToString(),
-                                Bio = reader["Bio"] != DBNull.Value ? reader["Bio"].ToString() : null,
-                                ProfilePicture = reader["ProfilePicture"] != DBNull.Value ? reader["ProfilePicture"].ToString() : null
-                            };
-
-                            return new JsonResult(userProfile);
-                        }
-                        else
-                        {
-                            return new JsonResult("User not found.") { StatusCode = 404 };
-                        }
-                    }
-                }
+                return Ok(result);
+            }
+            catch (ArgumentException ex)
+            {
+                return BadRequest(ex.Message);
+            }
+            catch (InvalidOperationException ex)
+            {
+                return NotFound(ex.Message);
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, new { error = "Internal server error", message = ex.Message });
             }
         }
-
-
     }
 }

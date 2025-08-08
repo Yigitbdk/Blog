@@ -1,8 +1,13 @@
 ﻿using BlogApp.Dto;
 using Microsoft.AspNetCore.Http;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.AspNetCore.Mvc;
 using System.Data;
 using System.Data.SqlClient;
+using DataAccessLayer.Data;
+using BusinessLogicLayer;
+using DataAccessLayer.Entities;
+using PostEntity = DataAccessLayer.Entities.Post;
 
 namespace BlogApp.Controllers
 {
@@ -10,212 +15,187 @@ namespace BlogApp.Controllers
     [ApiController]
     public class PostController : ControllerBase
     {
-        private IConfiguration _configuration;
-        public PostController(IConfiguration configuration)
+        private readonly IPostService _postService;
+
+        public PostController(IPostService postService)
         {
-            _configuration = configuration;
+            _postService = postService;
         }
 
-        // Postları alma metodu
-        [HttpGet(Name = "GetPosts")]
-        public JsonResult GetPosts()
-        {
-            string query = @"
-        SELECT 
-            p.PostId, 
-            p.Title, 
-            p.Content, 
-            p.UserId, 
-            u.Username, 
-            p.CategoryId, 
-            c.Name AS CategoryName
-        FROM dbo.Posts p
-        INNER JOIN dbo.[Users] u ON p.UserId = u.UserId
-        INNER JOIN dbo.Categories c ON p.CategoryId = c.CategoryId";
+        
 
-            DataTable table = new DataTable();
-            string sqlDatasource = _configuration.GetConnectionString("BlogDB");
-            SqlDataReader myReader;
-
-            using (SqlConnection myCon = new SqlConnection(sqlDatasource))
-            {
-                myCon.Open();
-                using (SqlCommand myCommand = new SqlCommand(query, myCon))
-                {
-                    myReader = myCommand.ExecuteReader();
-                    table.Load(myReader);
-                    myReader.Close();
-                    myCon.Close();
-                }
-            }
-
-            return new JsonResult(table);
-        }
-
-        //Post Silme
         [HttpDelete("deletePost/{postId}")]
-        public JsonResult DeletePost(int postId)
+        public async Task<IActionResult> DeletePost(int postId)
         {
-            string query = "DELETE FROM dbo.Post WHERE PostId = @PostId";
-            string sqlDatasource = _configuration.GetConnectionString("BlogDB");
-
-            using (SqlConnection myCon = new SqlConnection(sqlDatasource))
+            try
             {
-                myCon.Open();
-                using (SqlCommand myCommand = new SqlCommand(query, myCon))
-                {
-                    myCommand.Parameters.AddWithValue("@PostId", postId);
-                    myCommand.ExecuteNonQuery();
-                    myCon.Close();
-                }
-            }
+                var result = await _postService.DeletePostAsync(postId);
 
-            return new JsonResult("Post başarıyla silindi.");
+                if (!result)
+                    return NotFound(new { message = "Post bulunamadı." });
+
+                return Ok(new { message = "Post başarıyla silindi." });
+            }
+            catch (ArgumentException ex)
+            {
+                return BadRequest(new { message = ex.Message });
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, new { message = "An error occurred while deleting the post." });
+            }
         }
 
-
-        //ID ye göre Post alma
-        [HttpGet("{postId}", Name = "GetPost")]
-        public JsonResult GetPost(int postId)
+        [HttpGet(Name = "GetPosts")]
+        public async Task<IActionResult> GetPosts()
         {
-            string query = @"
-        SELECT 
-            p.PostId, 
-            p.Title, 
-            p.Content, 
-            p.UserId, 
-            u.Username, 
-            p.CategoryId, 
-            c.Name AS CategoryName
-        FROM dbo.Posts p
-        INNER JOIN dbo.[Users] u ON p.UserId = u.UserId
-        INNER JOIN dbo.Categories c ON p.CategoryId = c.CategoryId
-        WHERE p.PostId = @PostId"; 
-
-            DataTable table = new DataTable();
-            string sqlDatasource = _configuration.GetConnectionString("BlogDB");
-            SqlDataReader myReader;
-
-            using (SqlConnection myCon = new SqlConnection(sqlDatasource))
+            try
             {
-                myCon.Open();
-                using (SqlCommand myCommand = new SqlCommand(query, myCon))
-                {
-                    
-                    myCommand.Parameters.AddWithValue("@PostId", postId);
-                    myReader = myCommand.ExecuteReader();
-                    table.Load(myReader);
-                    myReader.Close();
-                    myCon.Close();
-                }
-            }
+                var posts = await _postService.GetAllPostsAsync();
 
-            return new JsonResult(table);
+                var postDtos = posts.Select(p => new PostDto
+                {
+                    PostId = p.PostId,
+                    Title = p.Title,
+                    Content = p.Content,
+                    UserId = p.UserId,  // modelde User FK alanı Id
+                    User = p.User != null ? new UserProfileDto
+                    {
+                        Username = p.User.UserName,  // Identity’de UserName büyük harf Dikkat!
+                        Bio = p.User.Bio,
+                        ProfilePicture = p.User.ProfilePicture
+                    } : null,
+                    Categories = p.Categories?.Select(c => new CategoryDto
+                    {
+                        CategoryId = c.CategoryId,
+                        Name = c.Name
+                    }).ToList()
+                }).ToList();
+
+                return Ok(postDtos);
+            }
+            catch (Exception)
+            {
+                return StatusCode(500, new { message = "An error occurred while fetching posts." });
+            }
         }
 
-        // Kullanıcıya ait postları alma metodu
+        [HttpGet("{postId}")]
+        public async Task<IActionResult> GetPost(int postId)
+        {
+            try
+            {
+                var post = await _postService.GetPostByIdAsync(postId);
+
+                if (post == null)
+                    return NotFound(new { message = "Post bulunamadı." });
+
+                var result = new
+                {
+                    post.PostId,
+                    post.Title,
+                    post.Content,
+                    UserId = post.UserId,
+                    Username = post.User?.UserName,
+                    Categories = post.Categories?.Select(c => new
+                    {
+                        c.CategoryId,
+                        c.Name
+                    }).ToList()
+                };
+
+                return Ok(result);
+            }
+            catch (Exception)
+            {
+                return StatusCode(500, new { message = "An error occurred while fetching the post." });
+            }
+        }
+
         [HttpGet(Name = "GetUserPosts")]
-        public JsonResult GetUserPosts(string userId)
+        public async Task<IActionResult> GetUserPosts([FromQuery] int userId)
         {
-            string query = @"
-        SELECT 
-            p.PostId, 
-            p.Title, 
-            p.Content, 
-            p.UserId, 
-            u.Username, 
-            p.CategoryId, 
-            c.Name AS CategoryName
-        FROM dbo.Posts p
-        INNER JOIN dbo.[Users] u ON p.UserId = u.UserId
-        INNER JOIN dbo.Categories c ON p.CategoryId = c.CategoryId
-        WHERE p.UserId = @UserId";
-
-            DataTable table = new DataTable();
-            string sqlDatasource = _configuration.GetConnectionString("BlogDB");
-            SqlDataReader myReader;
-
-            using (SqlConnection myCon = new SqlConnection(sqlDatasource))
+            try
             {
-                myCon.Open();
-                using (SqlCommand myCommand = new SqlCommand(query, myCon))
+                var posts = await _postService.GetPostsByUserIdAsync(userId);
+
+                var postDtos = posts.Select(p => new PostDto
                 {
-                    myCommand.Parameters.AddWithValue("@UserId", userId);
-                    myReader = myCommand.ExecuteReader();
-                    table.Load(myReader);
-                    myReader.Close();
-                    myCon.Close();
-                }
-            }
-
-            return new JsonResult(table);
-        }
-
-
-        //Post ekleme metodu
-        [HttpPost(Name = "AddPost")]
-        public JsonResult AddPost(PostDto dto)
-        {
-
-            string query = @"INSERT INTO dbo.Posts (Title, Content, UserId, CategoryId) 
-                     VALUES (@Title, @Content, @UserId, @CategoryId)";
-
-            DataTable table = new DataTable();
-            string sqlDatasource = _configuration.GetConnectionString("BlogDB");
-
-            using (SqlConnection myCon = new SqlConnection(sqlDatasource))
-            {
-                myCon.Open();
-                using (SqlCommand myCommand = new SqlCommand(query, myCon))
-                {
-
-                    myCommand.Parameters.AddWithValue("@Title", dto.Title);
-                    myCommand.Parameters.AddWithValue("@Content", dto.Content);
-                    myCommand.Parameters.AddWithValue("@UserId", dto.UserId);
-
-                    if (dto.CategoryId.HasValue)
+                    PostId = p.PostId,
+                    Title = p.Title,
+                    Content = p.Content,
+                    UserId = p.UserId,
+                    Categories = p.Categories?.Select(c => new CategoryDto
                     {
-                        myCommand.Parameters.AddWithValue("@CategoryId", dto.CategoryId.Value);
-                    }
-                    else
-                    {
-                        myCommand.Parameters.AddWithValue("@CategoryId", DBNull.Value);
-                    }
+                        CategoryId = c.CategoryId,
+                        Name = c.Name
+                    }).ToList()
+                }).ToList();
 
-                    myCommand.ExecuteNonQuery();
-                    myCon.Close();
-                }
+                return Ok(postDtos);
             }
-
-            return new JsonResult(table);
-        }
-
-
-        // Filtrelme metodu
-        [HttpGet(Name = "CategoryFilter")]
-        public JsonResult CategoryFilter(int categoryId)
-        {
-            string query = "SELECT PostId, Title, Content, UserId, CategoryId FROM dbo.Posts WHERE CategoryId = @CategoryId";
-            DataTable table = new DataTable();
-            string sqlDatasource = _configuration.GetConnectionString("BlogDB");
-            SqlDataReader myReader;
-
-            using (SqlConnection myCon = new SqlConnection(sqlDatasource))
+            catch (Exception ex)
             {
-                myCon.Open();
-                using (SqlCommand myCommand = new SqlCommand(query, myCon))
-                {
-                    myCommand.Parameters.AddWithValue("@CategoryId", categoryId);
-                    myReader = myCommand.ExecuteReader();
-                    table.Load(myReader);
-                    myReader.Close();
-                    myCon.Close();
-                }
+                return StatusCode(500, new { message = "An error occurred while fetching user posts." });
             }
-
-            return new JsonResult(table);
         }
 
-       
+        [HttpGet]
+        public async Task<IActionResult> CategoryFilter([FromQuery] int categoryId)
+        {
+            try
+            {
+                var posts = await _postService.GetAllPostsAsync();
+
+                // Çoklu kategoride filtreleme:
+                var filteredPosts = posts.Where(p => p.Categories != null && p.Categories.Any(c => c.CategoryId == categoryId)).ToList();
+
+                var postDtos = filteredPosts.Select(p => new PostDto
+                {
+                    PostId = p.PostId,
+                    Title = p.Title,
+                    Content = p.Content,
+                    UserId = p.UserId,
+                    Categories = p.Categories?.Select(c => new CategoryDto
+                    {
+                        CategoryId = c.CategoryId,
+                        Name = c.Name
+                    }).ToList()
+                }).ToList();
+
+                return Ok(postDtos);
+            }
+            catch (Exception)
+            {
+                return StatusCode(500, new { message = "An error occurred while filtering posts by category." });
+            }
+        }
+
+        [HttpPost]
+        public async Task<IActionResult> AddPost([FromBody] PostDto dto)
+        {
+            try
+            {
+                var newPost = new PostEntity
+                {
+                    Title = dto.Title,
+                    Content = dto.Content,
+                    UserId = dto.UserId,
+                    Categories = dto.Categories?.Select(c => new Category
+                    {
+                        CategoryId = c.CategoryId,
+                        Name = c.Name
+                    }).ToList() ?? new List<Category>()
+                };
+
+                var createdPost = await _postService.CreatePostAsync(newPost);
+                return Ok(new { Message = "Post successfully added", PostId = createdPost.PostId });
+            }
+            catch (Exception)
+            {
+                return StatusCode(500, new { message = "An error occurred while creating the post." });
+            }
+        }
+
     }
 }

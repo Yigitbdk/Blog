@@ -1,8 +1,10 @@
-﻿using Microsoft.AspNetCore.Mvc;
-using Microsoft.EntityFrameworkCore;
-using BlogApp.Dto;
-using BlogApp.Models;
-using BlogApp.Data;
+﻿using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Mvc;
+using System.Security.Claims;
+using BusinessLogicLayer;
+using PresentationLayer.DTOs;
+using DataAccessLayer.Entities;
+using System.ComponentModel.DataAnnotations;
 
 namespace BlogApp.Controllers
 {
@@ -10,50 +12,202 @@ namespace BlogApp.Controllers
     [ApiController]
     public class CommentController : ControllerBase
     {
-        private readonly BlogDbContext _context;
+        private readonly ICommentService _commentService;
 
-        public CommentController(BlogDbContext context)
+        public CommentController(ICommentService commentService)
         {
-            _context = context;
+            _commentService = commentService;
         }
 
-        // Yorumları alma
+        /// <summary>
+        /// Belirli bir post'un yorumlarını getirir
+        /// </summary>
         [HttpGet("getComments/{postId}")]
         public async Task<ActionResult<IEnumerable<Comment>>> GetCommentsByPostId(int postId)
         {
-            var comments = await _context.Comments
-                                          .Where(c => c.PostId == postId)
-                                          .Include(c => c.User) 
-                                          .Include(c => c.Post) 
-                                          .OrderByDescending(c => c.CreateDate)  
-                                          .ToListAsync();
-
-            if (comments == null || comments.Count == 0)
+            try
             {
-                return NotFound("No comments found for this post.");
-            }
+                if (postId <= 0)
+                {
+                    return BadRequest("Invalid post ID");
+                }
 
-            return Ok(comments);
+                var comments = await _commentService.GetCommentsByPostIdAsync(postId);
+                return Ok(comments);
+            }
+            catch (ArgumentException ex)
+            {
+                return BadRequest(ex.Message);
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, $"Internal server error: {ex.Message}");
+            }
         }
 
-        // Yorum ekleme
+        /// <summary>
+        /// Yeni yorum ekler - Kimlik doğrulaması gerekli
+        /// </summary>
         [HttpPost("addComment")]
-        public async Task<ActionResult> AddComment(CommentDto dto)
+        [Authorize] // Identity ile kimlik doğrulaması
+        public async Task<ActionResult> AddComment(CommentCreateDto dto)
         {
-   
-            var comment = new Comment
+            try
             {
-                PostId = dto.PostId,
-                UserId = dto.UserId,
-                Content = dto.Content,
-                CreateDate = DateTime.Now
-            };
+                if (!ModelState.IsValid)
+                {
+                    return BadRequest(ModelState);
+                }
 
+                // Identity'den kullanıcı ID'sini al
+                var userIdClaim = User.FindFirstValue(ClaimTypes.NameIdentifier);
+                if (!int.TryParse(userIdClaim, out int userId))
+                {
+                    return BadRequest("Invalid user ID");
+                }
 
-            _context.Comments.Add(comment);
-            await _context.SaveChangesAsync();
+                // DTO'dan primitive parametrelere mapping
+                var comment = await _commentService.AddCommentAsync(
+                    dto.PostId,
+                    userId,  // Identity'den alınan userId
+                    dto.Content);
 
-            return CreatedAtAction(nameof(GetCommentsByPostId), new { postId = dto.PostId }, comment);
+                return CreatedAtAction(
+                    nameof(GetCommentsByPostId),
+                    new { postId = dto.PostId },
+                    comment);
+            }
+            catch (ArgumentException ex)
+            {
+                return BadRequest(ex.Message);
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, $"Internal server error: {ex.Message}");
+            }
+        }
+
+        /// <summary>
+        /// ID ile belirli bir yorumu getirir
+        /// </summary>
+        [HttpGet("{commentId}")]
+        public async Task<ActionResult<Comment>> GetCommentById(int commentId)
+        {
+            try
+            {
+                if (commentId <= 0)
+                {
+                    return BadRequest("Invalid comment ID");
+                }
+
+                var comment = await _commentService.GetCommentByIdAsync(commentId);
+                if (comment == null)
+                {
+                    return NotFound("Comment not found");
+                }
+
+                return Ok(comment);
+            }
+            catch (ArgumentException ex)
+            {
+                return BadRequest(ex.Message);
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, $"Internal server error: {ex.Message}");
+            }
+        }
+
+        /// <summary>
+        /// Yorumu siler - Sadece yorum sahibi veya admin
+        /// </summary>
+        [HttpDelete("{commentId}")]
+        [Authorize]
+        public async Task<ActionResult> DeleteComment(int commentId)
+        {
+            try
+            {
+                if (commentId <= 0)
+                {
+                    return BadRequest("Invalid comment ID");
+                }
+
+                // Yorum sahibi kontrolü
+                var currentUserId = User.FindFirstValue(ClaimTypes.NameIdentifier);
+                var isAdmin = User.IsInRole("Admin");
+
+                var comment = await _commentService.GetCommentByIdAsync(commentId);
+                if (comment == null)
+                {
+                    return NotFound("Comment not found");
+                }
+
+                // Sadece yorum sahibi veya admin silebilir
+                if (comment.UserId.ToString() != currentUserId && !isAdmin)
+                {
+                    return Forbid("You can only delete your own comments");
+                }
+
+                var result = await _commentService.DeleteCommentAsync(commentId);
+                if (!result)
+                {
+                    return NotFound("Comment not found");
+                }
+
+                return NoContent();
+            }
+            catch (ArgumentException ex)
+            {
+                return BadRequest(ex.Message);
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, $"Internal server error: {ex.Message}");
+            }
+        }
+
+        /// <summary>
+        /// Kullanıcının kendi yorumlarını getirir
+        /// </summary>
+        [HttpGet("my-comments")]
+        [Authorize]
+        public async Task<ActionResult<IEnumerable<Comment>>> GetMyComments()
+        {
+            try
+            {
+                var userIdClaim = User.FindFirstValue(ClaimTypes.NameIdentifier);
+                if (!int.TryParse(userIdClaim, out int userId))
+                {
+                    return BadRequest("Invalid user ID");
+                }
+
+                var comments = await _commentService.GetCommentsByUserIdAsync(userId);
+                return Ok(comments);
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, $"Internal server error: {ex.Message}");
+            }
         }
     }
+}
+
+// Güncellenmiş DTO'lar
+namespace PresentationLayer.DTOs
+{
+    /// <summary>
+    /// Yorum ekleme için DTO - UserId otomatik alınır
+    /// </summary>
+    public class CommentCreateDto
+    {
+        [Required(ErrorMessage = "Post ID is required")]
+        [Range(1, int.MaxValue, ErrorMessage = "Post ID must be greater than 0")]
+        public int PostId { get; set; }
+
+        [Required(ErrorMessage = "Content is required")]
+        [StringLength(1000, MinimumLength = 1, ErrorMessage = "Content must be between 1 and 1000 characters")]
+        public string Content { get; set; } = string.Empty;
+    }
+
+    // UpdateCommentDto aynı kalır - sadece Content gerekli
 }

@@ -1,34 +1,27 @@
 ﻿using Microsoft.AspNetCore.Mvc;
-using System.Data.SqlClient;
-using System.Data;
+using Microsoft.EntityFrameworkCore;
+using DataAccessLayer.Data;
+using BusinessLogicLayer;
+using DataAccessLayer.Entities;
 
-[Route("api/[controller]/[action]")]
-[ApiController]
-public class CategoryController : ControllerBase
+namespace BlogApp.Controllers
 {
-    private readonly IConfiguration _configuration;
+    [Route("api/[controller]/[action]")]
+    [ApiController]
+    public class CategoryController : ControllerBase
+    {
+        private readonly ICategoryService _categoryService;
 
-    public CategoryController(IConfiguration configuration)
-    {
-        _configuration = configuration;
-    }
-    // Kategori Getirme 
-    [HttpGet(Name = "GetCategories")]
-    public JsonResult GetCategories()
-    {
-        string query = "SELECT * FROM dbo.Categories";
-        DataTable table = new DataTable();
-        string sqlDatasource = _configuration.GetConnectionString("BlogDB");
-        using (SqlConnection myCon = new SqlConnection(sqlDatasource))
+        public CategoryController(ICategoryService categoryService)
         {
-            myCon.Open();
-            using (SqlCommand myCommand = new SqlCommand(query, myCon))
-            {
-                SqlDataReader myReader = myCommand.ExecuteReader();
-                table.Load(myReader);
-                myReader.Close();
-            }
+            _categoryService = categoryService;
         }
-        return new JsonResult(table);
+
+        [HttpGet(Name = "GetCategories")]
+        public async Task<IActionResult> GetCategories()
+        {
+            var categories = await _categoryService.GetAllCategoriesAsync();
+            return Ok(categories);
+        }
     }
 }

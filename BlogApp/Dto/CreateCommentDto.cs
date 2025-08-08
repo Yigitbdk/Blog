@@ -1,6 +1,6 @@
 ﻿namespace BlogApp.Dto
 {
-    public class CommentDto
+    public class CreateCommentDto
     {
         public int PostId { get; set; }
         public int UserId { get; set; }

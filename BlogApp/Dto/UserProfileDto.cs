@@ -1,10 +1,12 @@
-﻿namespace BlogApp.Dto
+﻿using Microsoft.AspNetCore.Mvc;
+
+namespace BlogApp.Dto
 {
-    public class UpdateProfileRequestDto
+    public class UserProfileDto
     {
-        public int UserId { get; set; }
         public string Username { get; set; }
         public string? Bio { get; set; }
         public string? ProfilePicture { get; set; }
     }
+
 }
