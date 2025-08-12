@@ -19,11 +19,6 @@ namespace BlogApp.DTOs
         [DataType(DataType.Password)]
         public string Password { get; set; } = string.Empty;
 
-        [Required(ErrorMessage = "Password confirmation is required")]
-        [Compare("Password", ErrorMessage = "Passwords do not match")]
-        [DataType(DataType.Password)]
-        public string ConfirmPassword { get; set; } = string.Empty;
-
         [StringLength(1000, ErrorMessage = "Bio cannot exceed 1000 characters")]
         public string? Bio { get; set; }
     }

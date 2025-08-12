@@ -8,7 +8,7 @@ using Microsoft.EntityFrameworkCore.Migrations;
 namespace DataAccessLayer.Migrations
 {
     /// <inheritdoc />
-    public partial class AddIdentityTables : Migration
+    public partial class InitialCreate : Migration
     {
         /// <inheritdoc />
         protected override void Up(MigrationBuilder migrationBuilder)
@@ -261,14 +261,14 @@ namespace DataAccessLayer.Migrations
                 columns: new[] { "Id", "ConcurrencyStamp", "CreatedDate", "Description", "IsActive", "Name", "NormalizedName" },
                 values: new object[,]
                 {
-                    { 1, null, new DateTime(2025, 8, 7, 23, 50, 20, 689, DateTimeKind.Local).AddTicks(2638), "System Administrator", true, "Admin", "ADMIN" },
-                    { 2, null, new DateTime(2025, 8, 7, 23, 50, 20, 689, DateTimeKind.Local).AddTicks(2640), "Regular User", true, "User", "USER" }
+                    { 1, null, new DateTime(2025, 8, 8, 16, 5, 34, 518, DateTimeKind.Local).AddTicks(8886), "System Administrator", true, "Admin", "ADMIN" },
+                    { 2, null, new DateTime(2025, 8, 8, 16, 5, 34, 518, DateTimeKind.Local).AddTicks(8888), "Regular User", true, "User", "USER" }
                 });
 
             migrationBuilder.InsertData(
                 table: "Users",
                 columns: new[] { "Id", "AccessFailedCount", "Bio", "ConcurrencyStamp", "CreateDate", "Email", "EmailConfirmed", "IsActive", "LegacyUserId", "LockoutEnabled", "LockoutEnd", "NormalizedEmail", "NormalizedUserName", "PasswordHash", "PhoneNumber", "PhoneNumberConfirmed", "ProfilePicture", "SecurityStamp", "TwoFactorEnabled", "UserName" },
-                values: new object[] { 1, 0, null, "fcde0ab0-4fe4-4f8b-bd36-da6da2e3ccc5", new DateTime(2025, 8, 7, 23, 50, 20, 744, DateTimeKind.Local).AddTicks(5618), "admin@blog.com", true, true, null, false, null, "ADMIN@BLOG.COM", "ADMIN@BLOG.COM", "AQAAAAIAAYagAAAAEMzTiv4SKCiVtl7QWnBjDzU0SOOjKSRpw+12b4c7Hr8Pv7jdo0T/HVdGAX0YPK9sHQ==", null, false, null, "62fdf280-b214-48e3-9998-c837894ee15b", false, "admin@blog.com" });
+                values: new object[] { 1, 0, null, "a58033d5-c501-4e31-809b-fd13956bfdd0", new DateTime(2025, 8, 8, 16, 5, 34, 577, DateTimeKind.Local).AddTicks(28), "admin@blog.com", true, true, null, false, null, "ADMIN@BLOG.COM", "ADMIN@BLOG.COM", "AQAAAAIAAYagAAAAEMvo6cROM54xAch0EmYWs5oeIW1EkoDmntjrF7fa6m8C7Nvm48gl9WVMFDEO3fus0w==", null, false, null, "303b642f-d46b-4b8f-bcc6-ab4a381053f4", false, "admin@blog.com" });
 
             migrationBuilder.InsertData(
                 table: "UserRoles",

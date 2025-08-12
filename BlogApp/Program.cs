@@ -31,7 +31,15 @@ namespace BlogApp
 
             // DbContext
             builder.Services.AddDbContext<BlogIdentityDbContext>(options =>
-                options.UseSqlServer(builder.Configuration.GetConnectionString("BlogDB")));
+                options.UseSqlServer(
+                    builder.Configuration.GetConnectionString("BlogDB"),
+                    sqlOptions => sqlOptions.EnableRetryOnFailure(
+                        maxRetryCount: 3,
+                        maxRetryDelay: TimeSpan.FromSeconds(5),
+                        errorNumbersToAdd: null
+                    )
+                )
+            );
 
 
             // Password Hasher
@@ -48,7 +56,7 @@ namespace BlogApp
             builder.Services.AddScoped<IPostService, PostService>();
             builder.Services.AddScoped<ICommentService, CommentService>();
             builder.Services.AddScoped<ICategoryService, CategoryService>();
-            builder.Services.AddScoped<UserMigrationService>();
+   
 
 
 
@@ -94,35 +102,19 @@ namespace BlogApp
                 options.AddPolicy("UserOrAdmin", policy => policy.RequireRole("User", "Admin"));
             });
 
-            /*
-            builder.Services.AddAuthentication(options =>
+
+            builder.Services.AddCors(options =>
             {
-                options.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
-                options.DefaultChallengeScheme = JwtBearerDefaults.AuthenticationScheme;
-            })
-            .AddJwtBearer(options =>
-            {
-                options.TokenValidationParameters = new TokenValidationParameters
+                options.AddPolicy("AllowSpecificOrigin", builder =>
                 {
-                    ValidateIssuer = true,
-                    ValidateAudience = true,
-                    ValidateLifetime = true,
-                    ValidateIssuerSigningKey = true,
-                    ValidIssuer = builder.Configuration["Jwt:Issuer"],
-                    ValidAudience = builder.Configuration["Jwt:Audience"],
-                    IssuerSigningKey = new SymmetricSecurityKey(
-                        Encoding.UTF8.GetBytes(builder.Configuration["Jwt:Key"]))
-                };
+                    builder.WithOrigins("http://localhost:5173")
+                           .AllowAnyHeader()
+                           .AllowAnyMethod()
+                           .AllowCredentials();
+                });
             });
-            */
-
-
 
             var app = builder.Build();
-
-            // Enable CORS
-            app.UseCors(c => c.AllowAnyHeader().AllowAnyOrigin().AllowAnyMethod());
-
             // Configure the HTTP request pipeline.
             if (app.Environment.IsDevelopment())
             {
@@ -132,6 +124,7 @@ namespace BlogApp
 
             app.UseHttpsRedirection();
 
+            app.UseCors("AllowSpecificOrigin");
             app.UseAuthentication();
             app.UseAuthorization();
             app.MapControllers();

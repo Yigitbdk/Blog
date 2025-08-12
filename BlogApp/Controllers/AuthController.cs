@@ -9,7 +9,6 @@ namespace BlogApp.Controllers
 {
 
     // Authentication Controller
-
     [Route("api/[controller]")]
     [ApiController]
     public class AuthController : ControllerBase

@@ -79,7 +79,7 @@ namespace DataAccessLayer.Migrations
                         new
                         {
                             Id = 1,
-                            CreatedDate = new DateTime(2025, 8, 7, 23, 50, 20, 689, DateTimeKind.Local).AddTicks(2638),
+                            CreatedDate = new DateTime(2025, 8, 8, 16, 5, 34, 518, DateTimeKind.Local).AddTicks(8886),
                             Description = "System Administrator",
                             IsActive = true,
                             Name = "Admin",
@@ -88,7 +88,7 @@ namespace DataAccessLayer.Migrations
                         new
                         {
                             Id = 2,
-                            CreatedDate = new DateTime(2025, 8, 7, 23, 50, 20, 689, DateTimeKind.Local).AddTicks(2640),
+                            CreatedDate = new DateTime(2025, 8, 8, 16, 5, 34, 518, DateTimeKind.Local).AddTicks(8888),
                             Description = "Regular User",
                             IsActive = true,
                             Name = "User",
@@ -193,17 +193,17 @@ namespace DataAccessLayer.Migrations
                         {
                             Id = 1,
                             AccessFailedCount = 0,
-                            ConcurrencyStamp = "fcde0ab0-4fe4-4f8b-bd36-da6da2e3ccc5",
-                            CreateDate = new DateTime(2025, 8, 7, 23, 50, 20, 744, DateTimeKind.Local).AddTicks(5618),
+                            ConcurrencyStamp = "a58033d5-c501-4e31-809b-fd13956bfdd0",
+                            CreateDate = new DateTime(2025, 8, 8, 16, 5, 34, 577, DateTimeKind.Local).AddTicks(28),
                             Email = "admin@blog.com",
                             EmailConfirmed = true,
                             IsActive = true,
                             LockoutEnabled = false,
                             NormalizedEmail = "ADMIN@BLOG.COM",
                             NormalizedUserName = "ADMIN@BLOG.COM",
-                            PasswordHash = "AQAAAAIAAYagAAAAEMzTiv4SKCiVtl7QWnBjDzU0SOOjKSRpw+12b4c7Hr8Pv7jdo0T/HVdGAX0YPK9sHQ==",
+                            PasswordHash = "AQAAAAIAAYagAAAAEMvo6cROM54xAch0EmYWs5oeIW1EkoDmntjrF7fa6m8C7Nvm48gl9WVMFDEO3fus0w==",
                             PhoneNumberConfirmed = false,
-                            SecurityStamp = "62fdf280-b214-48e3-9998-c837894ee15b",
+                            SecurityStamp = "303b642f-d46b-4b8f-bcc6-ab4a381053f4",
                             TwoFactorEnabled = false,
                             UserName = "admin@blog.com"
                         });

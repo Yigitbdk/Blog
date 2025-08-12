@@ -51,6 +51,7 @@ namespace BlogApp.Controllers
             }
         }
 
+       /* 
         [HttpPost(Name = "LoginUser")]
         public async Task<IActionResult> LoginUser([FromBody] LoginRequestDto dto)
         {
@@ -78,6 +79,7 @@ namespace BlogApp.Controllers
                 return StatusCode(500, new { error = "Internal server error", message = ex.Message });
             }
         }
+       */
 
         [HttpPost(Name = "UpdateUserProfile")]
         public async Task<IActionResult> UpdateUserProfile(UpdateProfileRequestDto dto)
