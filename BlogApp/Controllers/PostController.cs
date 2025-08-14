@@ -5,9 +5,9 @@ using Microsoft.AspNetCore.Mvc;
 using System.Data;
 using System.Data.SqlClient;
 using DataAccessLayer.Data;
-using BusinessLogicLayer;
 using DataAccessLayer.Entities;
 using PostEntity = DataAccessLayer.Entities.Post;
+using BusinessLogicLayer.Services;
 
 namespace BlogApp.Controllers
 {

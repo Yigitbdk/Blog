@@ -4,7 +4,7 @@ using Microsoft.AspNetCore.Identity;
 using DataAccessLayer.Entities;
 using DataAccessLayer.Interfaces;
 
-namespace BusinessLogicLayer
+namespace BusinessLogicLayer.Services
 {
     public class UserService : IUserService
     {

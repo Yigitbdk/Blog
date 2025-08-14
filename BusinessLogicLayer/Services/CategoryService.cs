@@ -1,8 +1,7 @@
-﻿using BusinessLogicLayer;
-using DataAccessLayer.Entities;
+﻿using DataAccessLayer.Entities;
 using DataAccessLayer.Interfaces;
 
-namespace BusinessLogicLayer
+namespace BusinessLogicLayer.Services
 {
     public class CategoryService : ICategoryService
     {

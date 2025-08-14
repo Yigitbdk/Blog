@@ -1,10 +1,10 @@
 ﻿using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using System.Security.Claims;
-using BusinessLogicLayer;
 using PresentationLayer.DTOs;
 using DataAccessLayer.Entities;
 using System.ComponentModel.DataAnnotations;
+using BusinessLogicLayer.Services;
 
 namespace BlogApp.Controllers
 {

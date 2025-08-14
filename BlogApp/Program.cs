@@ -1,11 +1,14 @@
 using Newtonsoft.Json.Serialization;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.AspNetCore.Identity;
-using BusinessLogicLayer;
 using DataAccessLayer.Data;
 using DataAccessLayer.Interfaces;
 using DataAccessLayer.Entities;
 using DataAccessLayer.Repositories;
+using BusinessLogicLayer.Services;
+using System.Reflection;
+using FluentValidation;
+
 
 namespace BlogApp
 {
@@ -41,7 +44,6 @@ namespace BlogApp
                 )
             );
 
-
             // Password Hasher
             builder.Services.AddScoped<IPasswordHasher<ApplicationUser>, PasswordHasher<ApplicationUser>>();
 
@@ -56,9 +58,9 @@ namespace BlogApp
             builder.Services.AddScoped<IPostService, PostService>();
             builder.Services.AddScoped<ICommentService, CommentService>();
             builder.Services.AddScoped<ICategoryService, CategoryService>();
-   
 
-
+            // Validator
+            builder.Services.AddValidatorsFromAssembly(Assembly.GetExecutingAssembly());
 
 
 

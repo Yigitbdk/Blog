@@ -7,7 +7,7 @@ using DataAccessLayer.Entities;
 using DataAccessLayer.Data;
 using Microsoft.EntityFrameworkCore;
 
-namespace BusinessLogicLayer
+namespace BusinessLogicLayer.Services
 {
     public interface IPostService
     {

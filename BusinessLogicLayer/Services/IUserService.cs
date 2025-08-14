@@ -9,7 +9,7 @@ using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 
 
-namespace BusinessLogicLayer
+namespace BusinessLogicLayer.Services
 {
     public interface IUserService
     {

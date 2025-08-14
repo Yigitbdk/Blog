@@ -1,5 +1,4 @@
-﻿using BusinessLogicLayer;
-using DataAccessLayer.Entities;
+﻿using DataAccessLayer.Entities;
 using DataAccessLayer.Interfaces;
 using System;
 using System.Collections.Generic;
@@ -10,7 +9,7 @@ using DataAccessLayer.Data;
 using Microsoft.EntityFrameworkCore;
 
 
-namespace BusinessLogicLayer
+namespace BusinessLogicLayer.Services
 {
     public class PostService : IPostService
     {

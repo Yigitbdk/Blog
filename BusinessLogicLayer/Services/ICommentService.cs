@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.Threading.Tasks;
 using DataAccessLayer.Entities;
 
-namespace BusinessLogicLayer
+namespace BusinessLogicLayer.Services
 {
     public interface ICommentService
     {

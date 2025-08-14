@@ -1,8 +1,8 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using DataAccessLayer.Data;
-using BusinessLogicLayer;
 using DataAccessLayer.Entities;
+using BusinessLogicLayer.Services;
 
 namespace BlogApp.Controllers
 {

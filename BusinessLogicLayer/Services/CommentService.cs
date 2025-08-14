@@ -9,10 +9,9 @@ using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
 using DataAccessLayer.Interfaces;
-using BusinessLogicLayer;
 
 
-namespace BusinessLogicLayer
+namespace BusinessLogicLayer.Services
 {
     public class CommentService : ICommentService
     {
