@@ -16,6 +16,8 @@ namespace DataAccessLayer.Interfaces
         Task<ApplicationUser> GetUserByEmailAsync(string email);
         Task<ApplicationUser> CreateUserAsync(ApplicationUser user);
         Task<ApplicationUser> UpdateUserAsync(ApplicationUser user);
+        //
+        Task<List<ApplicationUser>> GetAllUsersAsync();
         Task<bool> UserExistsAsync(int userId);
         Task<bool> UserNameExistsAsync(string username);
         Task<bool> EmailExistsAsync(string email);

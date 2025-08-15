@@ -20,8 +20,13 @@ namespace BusinessLogicLayer.Services
         Task<bool> EmailExistsAsync(string email);
         Task<bool> UserExistsAsync(int userId);
         Task<bool> UserNameExistsAsync(string username);
+        //
+        Task<List<UserWithRolesDto>> GetAllUsersWithRolesAsync();
+        Task<bool> AddAdminRoleAsync(int userId);
+        Task<bool> RemoveAdminRoleAsync(int userId);
+        Task<bool> IsUserAdminAsync(int userId);
+        Task<List<string>> GetUserRolesAsync(int userId);
 
 
-        
     }
 }

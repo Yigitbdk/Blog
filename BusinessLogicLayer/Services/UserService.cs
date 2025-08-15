@@ -10,11 +10,13 @@ namespace BusinessLogicLayer.Services
     {
         private readonly IUserRepository _userRepository;
         private readonly IPasswordHasher<ApplicationUser> _passwordHasher;
+        private readonly UserManager<ApplicationUser> _userManager;
 
-        public UserService(IUserRepository userRepository, IPasswordHasher<ApplicationUser> passwordHasher)
+        public UserService(IUserRepository userRepository, IPasswordHasher<ApplicationUser> passwordHasher, UserManager<ApplicationUser> userManager)
         {
             _userRepository = userRepository;
             _passwordHasher = passwordHasher;
+            _userManager = userManager;
         }
 
         public async Task<ApplicationUser> RegisterUserAsync(string username, string email, string password, string profilePicture = null)
@@ -142,5 +144,85 @@ namespace BusinessLogicLayer.Services
             return user != null;
         }
 
+        // ADMIN
+
+        public async Task<List<UserWithRolesDto>> GetAllUsersWithRolesAsync()
+        {
+            var users = await _userRepository.GetAllUsersAsync();
+            var result = new List<UserWithRolesDto>();
+
+            foreach (var user in users)
+            {
+                var roles = await _userManager.GetRolesAsync(user);
+                result.Add(new UserWithRolesDto
+                {
+                    Id = user.Id,
+                    UserName = user.UserName,
+                    Email = user.Email,
+                    ProfilePicture = user.ProfilePicture,
+                    Bio = user.Bio,
+                    IsActive = user.IsActive,
+                    CreateDate = user.CreateDate,
+                    Roles = roles.ToList()
+                });
+            }
+
+            return result;
+        }
+
+
+        public async Task<bool> AddAdminRoleAsync(int userId)
+        {
+            var user = await _userRepository.GetUserByIdAsync(userId);
+            if (user == null)
+                throw new InvalidOperationException("User not found");
+
+            var result = await _userManager.AddToRoleAsync(user, "Admin");
+            return result.Succeeded;
+        }
+
+
+        public async Task<bool> RemoveAdminRoleAsync(int userId)
+        {
+            var user = await _userRepository.GetUserByIdAsync(userId);
+            if (user == null)
+                throw new InvalidOperationException("User not found");
+
+            var result = await _userManager.RemoveFromRoleAsync(user, "Admin");
+            return result.Succeeded;
+        }
+
+
+        public async Task<bool> IsUserAdminAsync(int userId)
+        {
+            var user = await _userRepository.GetUserByIdAsync(userId);
+            if (user == null)
+                return false;
+
+            return await _userManager.IsInRoleAsync(user, "Admin");
+        }
+
+        public async Task<List<string>> GetUserRolesAsync(int userId)
+        {
+            var user = await _userRepository.GetUserByIdAsync(userId);
+            if (user == null)
+                throw new InvalidOperationException("User not found");
+
+            var roles = await _userManager.GetRolesAsync(user);
+            return roles.ToList();
+        }
+    }
+
+    public class UserWithRolesDto
+    {
+        public int Id { get; set; }
+        public string? UserName { get; set; }
+        public string? Email { get; set; }
+        public string? ProfilePicture { get; set; }
+        public string? Bio { get; set; }
+        public bool IsActive { get; set; }
+        public DateTime CreateDate { get; set; }
+        public List<string> Roles { get; set; } = new List<string>();
     }
 }
+

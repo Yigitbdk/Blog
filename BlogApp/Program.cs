@@ -107,7 +107,7 @@ namespace BlogApp
 
             builder.Services.AddCors(options =>
             {
-                options.AddPolicy("AllowSpecificOrigin", builder =>
+                options.AddPolicy("CorsPolicy", builder =>
                 {
                     builder.WithOrigins("http://localhost:5173")
                            .AllowAnyHeader()
@@ -126,7 +126,7 @@ namespace BlogApp
 
             app.UseHttpsRedirection();
 
-            app.UseCors("AllowSpecificOrigin");
+            app.UseCors("CorsPolicy");
             app.UseAuthentication();
             app.UseAuthorization();
             app.MapControllers();

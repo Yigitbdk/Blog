@@ -18,10 +18,8 @@ namespace DataAccessLayer.Entities
         public DateTime CreateDate { get; set; } = DateTime.Now;
         public bool IsActive { get; set; } = true;
 
-        // Migration için
         public int? LegacyUserId { get; set; }
 
-        // Navigations
         public virtual ICollection<Post> Posts { get; set; } = new List<Post>();
         public virtual ICollection<Comment> Comments { get; set; } = new List<Comment>();
     }

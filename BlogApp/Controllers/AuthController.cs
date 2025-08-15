@@ -12,9 +12,9 @@ namespace BlogApp.Controllers
     [ApiController]
     public class AuthController : ControllerBase
     {
-        private readonly IUserService _userService; // Service katmanı
-        private readonly SignInManager<ApplicationUser> _signInManager; // Sadece authentication için
-        private readonly UserManager<ApplicationUser> _userManager; // Sadece authentication için
+        private readonly IUserService _userService;
+        private readonly SignInManager<ApplicationUser> _signInManager;
+        private readonly UserManager<ApplicationUser> _userManager;
         private readonly ILogger<AuthController> _logger;
 
         public AuthController(
@@ -29,7 +29,7 @@ namespace BlogApp.Controllers
             _logger = logger;
         }
 
-        // Register - Artık Service kullanıyor
+        // Register
         [HttpPost("register")]
         public async Task<ActionResult> Register(RegisterDto dto)
         {
@@ -41,8 +41,7 @@ namespace BlogApp.Controllers
                 var user = await _userService.RegisterUserAsync(
                     dto.Username, 
                     dto.Email, 
-                    dto.Password, 
-                    null); // ProfilePicture için
+                    dto.Password,null);
 
                 _logger.LogInformation($"New user registered: {dto.Email}");
 
@@ -69,7 +68,7 @@ namespace BlogApp.Controllers
             }
         }
 
-        // Login - Service kullanıyor
+        // Login
         [HttpPost("login")]
         public async Task<ActionResult> Login(LoginDto dto)
         {
@@ -80,7 +79,6 @@ namespace BlogApp.Controllers
 
                 var user = await _userService.LoginUserAsync(dto.EmailOrUsername, dto.Password);
 
-                // Authentication için SignInManager kullanıyoruz
                 var result = await _signInManager.PasswordSignInAsync(
                     user.UserName!,
                     dto.Password,
@@ -139,7 +137,7 @@ namespace BlogApp.Controllers
             }
         }
 
-        // GetProfile - Service kullanıyor
+        // GetProfile
         [HttpGet("profile")]
         [Authorize]
         public async Task<ActionResult> GetProfile()
@@ -156,7 +154,7 @@ namespace BlogApp.Controllers
 
                 var profileDto = new ProfileDto
                 {
-                    Id = user.Id.ToString(), // int'i string'e çeviriyoruz
+                    Id = user.Id,
                     Username = user.UserName,
                     Email = user.Email,
                     Bio = user.Bio,
@@ -182,7 +180,7 @@ namespace BlogApp.Controllers
             }
         }
 
-        // UpdateProfile - Service kullanıyor
+        // UpdateProfile
         [HttpPut("profile")]
         [Authorize]
         public async Task<ActionResult> UpdateProfile(UpdateProfileDto dto)
@@ -197,12 +195,12 @@ namespace BlogApp.Controllers
                 if (!int.TryParse(userIdString, out int userId))
                     return BadRequest("Invalid user ID");
 
-                // Önce mevcut kullanıcıyı alıp username'ini koruyoruz
+
                 var currentUser = await _userService.GetUserProfileAsync(userId);
 
                 await _userService.UpdateUserProfileAsync(
                     userId, 
-                    currentUser.UserName, // Mevcut username'i kullan
+                    currentUser.UserName,
                     dto.Bio, 
                     dto.ProfilePicture);
 
@@ -224,7 +222,7 @@ namespace BlogApp.Controllers
             }
         }
 
-        // ChangePassword - Bu işlem için UserManager gerekli (Identity özelliği)
+        // ChangePassword 
         [HttpPost("change-password")]
         [Authorize]
         public async Task<ActionResult> ChangePassword(ChangePasswordDto dto)
@@ -257,5 +255,111 @@ namespace BlogApp.Controllers
                 return StatusCode(500, "Password change failed");
             }
         }
+
+        [HttpGet("user")]
+        [Authorize]
+        public async Task<ActionResult> GetCurrentUser()
+        {
+            try
+            {
+                var user = await _userManager.GetUserAsync(User);
+                if (user == null)
+                    return Unauthorized();
+
+                var roles = await _userService.GetUserRolesAsync(user.Id);
+
+                return Ok(new
+                {
+                    Id = user.Id,
+                    Username = user.UserName,
+                    Email = user.Email,
+                    Bio = user.Bio,
+                    ProfilePicture = user.ProfilePicture,
+                    Roles = roles
+                });
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Get current user failed");
+                return StatusCode(500, "Failed to get user information");
+            }
+        }
+
+
+        [HttpGet("admin/users")]
+        [Authorize(Roles = "Admin")]
+        public async Task<ActionResult> GetAllUsers()
+        {
+            try
+            {
+                var users = await _userService.GetAllUsersWithRolesAsync();
+                return Ok(users);
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Get all users failed");
+                return StatusCode(500, "Failed to get users");
+            }
+        }
+
+        // Kullanıcıya rol atama
+        [HttpPut("admin/users/{id}/roles")]
+        [Authorize(Roles = "Admin")]
+        public async Task<ActionResult> UpdateUserRole(int id, [FromBody] UpdateRoleRequest request)
+        {
+            try
+            {
+                if (!await _userService.UserExistsAsync(id))
+                    return NotFound("User not found");
+
+                bool success = false;
+                string message = "";
+
+                if (request.Action == "add" && request.Role == "Admin")
+                {
+                    var isAlreadyAdmin = await _userService.IsUserAdminAsync(id);
+                    if (isAlreadyAdmin)
+                        return BadRequest("User is already an admin");
+
+                    success = await _userService.AddAdminRoleAsync(id);
+                    message = success ? "Admin role added successfully" : "Failed to add admin role";
+                }
+                else if (request.Action == "remove" && request.Role == "Admin")
+                {
+                    var isAdmin = await _userService.IsUserAdminAsync(id);
+                    if (!isAdmin)
+                        return BadRequest("User is not an admin");
+
+                    success = await _userService.RemoveAdminRoleAsync(id);
+                    message = success ? "Admin role removed successfully" : "Failed to remove admin role";
+                }
+                else
+                {
+                    return BadRequest("Invalid role operation");
+                }
+
+                if (success)
+                {
+                    _logger.LogInformation($"Admin role {request.Action} operation successful for user {id}");
+                    return Ok(new { Message = message });
+                }
+                else
+                {
+                    return BadRequest(message);
+                }
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Update user role failed for user {UserId}", id);
+                return StatusCode(500, "Failed to update user role");
+            }
+        }
+    }
+
+    // DTO sınıfı
+    public class UpdateRoleRequest
+    {
+        public string Action { get; set; } = string.Empty; // "add" veya "remove"
+        public string Role { get; set; } = string.Empty;   // "Admin"
     }
 }
