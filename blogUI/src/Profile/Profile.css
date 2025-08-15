@@ -1,0 +1,65 @@
+.container {
+  display: flex;
+  margin-top: 150px;
+}
+
+.flex-row {
+  display: flex;
+  flex-direction: row;
+  margin: 0;
+  margin-right: 20px;
+}
+
+.profile-img {
+  width: 100px;
+  height: 100px;
+  border-radius: 100%;
+  background: red;
+  margin-left: 160px;
+}
+
+.space-between {
+  justify-content: space-between;
+}
+
+.name {
+  font-size: 50px;
+  color: rgb(165, 209, 202);
+}
+
+.bio {
+  font-size: 16px;
+  color: rgb(165, 209, 202);
+  width: 370px;
+}
+
+.gap-20 {
+  gap: 20px;
+}
+
+.profil-card {
+  height: 300px;
+  min-width: 380px;
+  width: 30%;
+  margin-bottom: 20px;
+  align-self: flex-start;
+}
+
+.posts {
+  width: 65%;
+}
+
+.edit-button {
+  margin-top: 10px;
+  padding: 8px 16px;
+  background-color: #121212;
+  color: rgb(165, 209, 202);
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+  font-size: 14px;
+}
+
+.edit-button:hover {
+  background-color: #1d3233;
+}

@@ -1,0 +1,13 @@
+
+.table-hover tr:hover {
+  background-color: #f8fafc;
+}
+
+.scrollbar-thin::-webkit-scrollbar {
+  height: 6px;
+}
+
+.scrollbar-thin::-webkit-scrollbar-thumb {
+  background-color: #94a3b8;
+  border-radius: 3px;
+}

@@ -1,0 +1,215 @@
+
+.edit-profile-container {
+  max-width: 600px;
+  margin: 40px auto;
+  padding: 20px;
+  margin-top: 150px;
+}
+
+.edit-profile-container .card {
+  background: rgb(20, 71, 71);
+  border-radius: 15px;
+  box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+  overflow: hidden;
+}
+
+.edit-profile-container .card-header {
+  background: linear-gradient(135deg, #1d3233);
+  color: #0f969c;
+  padding: 30px;
+  text-align: center;
+
+}
+
+.edit-profile-container .card-header h2 {
+  margin: 0;
+  font-size: 28px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+}
+
+.edit-profile-container .card-header p {
+  margin: 10px 0 0 0;
+  opacity: 0.9;
+  font-size: 16px;
+}
+
+.edit-profile-container .form-group {
+  margin-bottom: 25px;
+  padding: 0 30px;
+}
+
+.edit-profile-container .form-group:first-of-type {
+  margin-top: 30px;
+}
+
+.edit-profile-container .form-group label {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-weight: 600;
+  margin-bottom: 8px;
+  color: #0f969c;
+  font-size: 14px;
+}
+
+.edit-profile-container .form-group input,
+.edit-profile-container .form-group textarea {
+  width: 100%;
+  padding: 12px 15px;
+  border: 2px solid #e1e5e9;
+  border-radius: 8px;
+  font-size: 14px;
+  transition: all 0.3s ease;
+  font-family: inherit;
+  box-sizing: border-box;
+}
+
+.edit-profile-container .form-group input:focus,
+.edit-profile-container .form-group textarea:focus {
+  outline: none;
+  border-color: #0f969c;
+  box-shadow: 0 0 0 0.2rem rgba(102, 126, 234, 0.25);
+}
+
+.edit-profile-container .form-group input:disabled {
+  background-color: #0f969c;
+  cursor: not-allowed;
+  color: #6c757d;
+}
+
+.edit-profile-container .form-group textarea {
+  resize: vertical;
+  min-height: 100px;
+}
+
+.edit-profile-container .form-group small {
+  display: block;
+  margin-top: 5px;
+  font-size: 12px;
+}
+
+.edit-profile-container .form-group.error input,
+.edit-profile-container .form-group.error textarea {
+  border-color: #e74c3c;
+  box-shadow: 0 0 0 0.2rem rgba(231, 76, 60, 0.25);
+}
+
+.edit-profile-container .error-message {
+  color: #e74c3c;
+  font-size: 12px;
+  margin-top: 5px;
+  display: block;
+  font-weight: 500;
+}
+
+.edit-profile-container .success-message {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-weight: 500;
+}
+
+.edit-profile-container .loading-spinner {
+  animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+  from { transform: rotate(0deg); }
+  to { transform: rotate(360deg); }
+}
+
+.edit-profile-container .form-actions {
+  display: flex;
+  gap: 15px;
+  justify-content: center;
+  padding: 30px;
+  background-color: rgb(20, 71, 71);
+}
+
+.edit-profile-container .btn {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 12px 24px;
+  border: none;
+  border-radius: 25px;
+  cursor: pointer;
+  font-size: 14px;
+  font-weight: 600;
+  transition: all 0.3s ease;
+  text-decoration: none;
+  min-width: 140px;
+  justify-content: center;
+}
+
+.edit-profile-container .btn:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+  transform: none !important;
+}
+
+.edit-profile-container .btn-primary {
+  background: linear-gradient(135deg, #0f969c);
+  color: rgb(20, 71, 71);
+}
+
+.edit-profile-container .btn-primary:hover:not(:disabled) {
+  transform: translateY(-2px);
+  box-shadow: 0 5px 15px rgba(102, 126, 234, 0.4);
+}
+
+.edit-profile-container .btn-secondary {
+  background-color: #6c757d;
+  color: white;
+}
+
+.edit-profile-container .btn-secondary:hover:not(:disabled) {
+  background-color: #5a6268;
+  transform: translateY(-2px);
+  box-shadow: 0 5px 15px rgba(108, 117, 125, 0.4);
+}
+
+.edit-profile-container .image-preview {
+  text-align: center;
+  margin-top: 10px;
+}
+
+.edit-profile-container .loading-container,
+.edit-profile-container .error-container {
+  text-align: center;
+  padding: 50px;
+}
+
+.edit-profile-container .error-container i {
+  font-size: 48px;
+  color: #e74c3c;
+  margin-bottom: 15px;
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+  .edit-profile-container {
+    margin: 20px;
+    padding: 10px;
+  }
+  
+  .edit-profile-container .form-group {
+    padding: 0 20px;
+  }
+  
+  .edit-profile-container .card-header {
+    padding: 20px;
+  }
+  
+  .edit-profile-container .card-header h2 {
+    font-size: 24px;
+  }
+  
+  .edit-profile-container .form-actions {
+    flex-direction: column;
+    padding: 20px;
+  }
+}

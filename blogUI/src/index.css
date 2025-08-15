@@ -1,0 +1,17 @@
+html, body {
+    height: 100%;
+    margin: 0;
+    padding: 0;
+    background-color: #05161a;
+    background-image: url('https://s3-us-west-2.amazonaws.com/s.cdpn.io/1462889/pat-back.svg');
+    background-size: 4%;
+    background-repeat: repeat;
+    background-position: center;
+  }
+  ol,ul{
+    padding-left: 0;
+  }
+  dl, ol, ul {
+    margin-top: 0;
+    margin-bottom: 0;
+}
