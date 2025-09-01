@@ -75,6 +75,5 @@ The purpose of this project is to combine **.NET backend skills** with **modern 
 
 ## 📄 License
 This project is licensed under the MIT License.
----
 ### 📧 Contact
 If you have any questions about this project, feel free to reach out!
