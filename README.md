@@ -12,19 +12,36 @@ Frontend
 🎨 Tailwind CSS
  — Modern and responsive styling
 
+ 
+
 Backend
 
 🖥️ ASP.NET Core — 3-layer architecture (API, Business, Data)
+
 🗄️ Entity Framework Core — ORM for database operations
+
 🔑 ASP.NET Identity — User and role management
+
 🍪 Cookie Authentication — Session management
+
 ✅ FluentValidation — Input and data validation
+
+
+
 ✨ Features
+
 👤 User registration and login
+
 🔐 Role-based authorization (Admin & User)
+
 📝 Create, view, and manage blog posts
+
 🏷️ Category-based content filtering
+
 📱 Responsive UI (mobile & desktop support)
+
+
+
 
 ⚙️ Installation
 Backend
